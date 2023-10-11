@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='akutils',
-    version='0.2.3',
+    version='0.2.4',
     author='Timm Nawrocki',
     author_email='twnawrocki@alaska.edu',
     description='Functions and utilities for Alaska geospatial data development.',
