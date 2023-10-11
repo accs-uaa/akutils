@@ -23,7 +23,7 @@ def raster_block_progress(detail=4, windows=len(window_list)):
     previous_progress = progress
     
     # Report progress
-    progress = int((int((count / len(window_list)) * detail) / detail) * 100)
+    progress = int((int((count / windows) * detail) / detail) * 100)
     if (progress > previous_progress):
         print(f'\tProgress completed {progress}%...')
     
