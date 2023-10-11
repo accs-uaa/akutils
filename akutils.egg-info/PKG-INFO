@@ -1,0 +1,83 @@
+Metadata-Version: 2.1
+Name: akutils
+Version: 0.2.5
+Summary: Functions and utilities for Alaska geospatial data development.
+Home-page: https://github.com/accs-uaa/akutils
+Author: Timm Nawrocki
+Author-email: twnawrocki@alaska.edu
+License: MIT
+Project-URL: Bug Tracker, https://github.com/accs-uaa/akutils/issues
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests
+
+# AKutils
+
+AKutils is a Python package that contains functions to aid geospatial data development for Alaska.
+
+*Author*: Timm Nawrocki, Alaska Center for Conservation Science, University of Alaska Anchorage
+
+*Created On*: 2023-10-10
+
+*Last Updated*: 2023-10-10
+
+*Description*: Functions for data acquisition, data manipulation, statistical modeling, results post-processing, and accuracy assessment for geospatial data development in Alaska.
+
+## Getting Started
+These instructions will enable you to import functions from the AKutils package into scripts. 
+
+### Prerequisites
+
+1. Python 3.9+
+2. pip
+
+### Installing
+
+This section describes the purpose of each script and gives instructions for modifying parameters to reproduce results or adapt to another project.
+
+```bash
+pip install git+https://github.com/accs-uaa/akutils
+```
+
+## Usage
+This section describes the purpose of each function and provides details of parameters and outputs.
+
+### Functions
+
+#### end_timing
+
+The *end_timing* function is used to calculate the amount of time a process took to complete. The 
+
+##### **Parameters that must be modified:**
+
+* *iteration_start*: Specify a time captured using the time.time() function.
+
+##### Example
+
+```
+print('Counting to 1,000,000...')
+iteration_start = time.time()
+count = 1
+while count < 1000000:
+	count += 1
+end_timing(iteration_start)
+```
+
+## Credits
+
+### Authors
+
+* **Timm Nawrocki** - *Alaska Center for Conservation Science, University of Alaska Anchorage*
+
+### Usage Requirements
+
+Usage of the scripts, packages, tools, or routines included in this repository should be cited as follows:
+
+Nawrocki, T.W. 2023. AKutils. Git Repository. Available: https://github.com/accs-uaa/akutils
+
+### Citations
+
+N/A
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)

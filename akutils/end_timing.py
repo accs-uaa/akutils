@@ -1,9 +1,9 @@
 def end_timing(iteration_start):
     """
-    Description: calculates mean annual climate properties from a set of month-year climate rasters
-    Inputs: 'iteration_start' -- an integer value of the number of years, which is the denominator in the mean calculation
-    Returned Value: Returns a raster dataset on disk containing the mean annual climate property
-    Preconditions: requires input month-year climate rasters that can be downloaded from SNAP at UAF
+    Description: calculates the amount of time that a process took
+    Inputs: 'iteration_start' -- a time captured using time.time()
+    Returned Value: no return
+    Preconditions: requires datetime and time
     """
 
     # Import packages
@@ -14,6 +14,7 @@ def end_timing(iteration_start):
     iteration_end = time.time()
     iteration_elapsed = int(iteration_end - iteration_start)
     iteration_success_time = datetime.datetime.now()
+
     # Report success
     print(
         f'Completed at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
