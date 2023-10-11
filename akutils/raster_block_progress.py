@@ -1,4 +1,4 @@
-def raster_block_progress(detail=4, windows):
+def raster_block_progress(detail=4, windows=100):
     """
     Description: tracks progress of rasterio block processing
     Inputs: 'detail' -- an integer representing the number of reports to provide
