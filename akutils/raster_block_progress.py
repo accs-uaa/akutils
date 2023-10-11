@@ -31,4 +31,4 @@ def raster_block_progress(detail=4, windows=100):
     count += 1
     
     # Return count
-    return count, previous_progress
+    return count, progress
