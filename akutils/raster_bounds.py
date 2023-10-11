@@ -6,7 +6,7 @@ def raster_bounds(area_file):
     Preconditions: requires rasterio
     """
     # Import packages
-    import(rasterio)
+    import rasterio
 
     # Get the bounds for the area of interest
     with rasterio.open(area_file) as area_raster:
