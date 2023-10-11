@@ -9,3 +9,4 @@
 
 # Import functions from modules
 from .end_timing import end_timing
+from .raster_block_progress import raster_block_progress
