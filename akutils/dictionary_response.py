@@ -27,14 +27,15 @@ def get_attribute_code_block():
     Returned Value: returns a code block
     Preconditions: none
     '''
-    code_block = '''for key, value in dictionary.items():
-    if type == 'key':
-        if test == value:
-            return key
-    elif type=='value':
-        if test == key:
-            return value
-    else:
-        print('ERROR: Type must be either "key" or "value".')
-        quit()'''
+    code_block = '''def get_response(test, dictionary, type):
+    for key, value in dictionary.items():
+        if type == 'key':
+            if test == value:
+                return key
+        elif type=='value':
+            if test == key:
+                return value
+        else:
+            print('ERROR: Type must be either "key" or "value".')
+            quit()'''
     return code_block
