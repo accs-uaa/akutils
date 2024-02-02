@@ -13,5 +13,5 @@ def raster_bounds(area_file):
         area_bounds = area_raster.bounds
         area_raster.close()
 
-    # Return count
+    # Return bounds
     return area_bounds

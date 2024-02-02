@@ -11,5 +11,6 @@
 from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
 from .end_timing import end_timing
+from .geodatabase_to_dataframe import geodatabase_to_dataframe
 from .raster_block_progress import raster_block_progress
 from .raster_bounds import raster_bounds
