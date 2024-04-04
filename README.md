@@ -6,7 +6,7 @@ AKutils is a Python package that contains functions to aid geospatial data devel
 
 *Created On*: 2023-10-10
 
-*Last Updated*: 2023-10-10
+*Last Updated*: 2024-04-04
 
 *Description*: Functions for data acquisition, data manipulation, statistical modeling, results post-processing, and accuracy assessment for geospatial data development in Alaska.
 
@@ -17,6 +17,12 @@ These instructions will enable you to import functions from the AKutils package 
 
 1. Python 3.9+
 2. pip
+3. arcpy
+4. datetime
+5. pandas
+6. psycopg2
+7. rasterio
+8. time
 
 ### Installing
 
