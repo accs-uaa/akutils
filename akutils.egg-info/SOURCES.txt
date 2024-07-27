@@ -2,8 +2,14 @@ LICENSE
 README.md
 setup.py
 akutils/__init__.py
+akutils/connect_database_postgresql.py
+akutils/determineOptimalThreshold.py
+akutils/dictionary_response.py
 akutils/end_timing.py
+akutils/geodatabase_to_dataframe.py
+akutils/query_to_dataframe.py
 akutils/raster_block_progress.py
+akutils/raster_bounds.py
 akutils.egg-info/PKG-INFO
 akutils.egg-info/SOURCES.txt
 akutils.egg-info/dependency_links.txt
