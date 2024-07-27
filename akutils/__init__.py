@@ -2,13 +2,15 @@
 # ---------------------------------------------------------------------------
 # Initialization for AKVEG package
 # Author: Timm Nawrocki
-# Last Updated: 2024-04-04
+# Last Updated: 2024-07-26
 # Usage: Individual functions have varying requirements.
 # Description: The AKVEG package contains helper functions used across scripts.
 # ---------------------------------------------------------------------------
 
 # Import functions from modules
 from .connect_database_postgresql import connect_database_postgresql
+from .determine_optimal_threshold import determine_optimal_threshold
+from .determine_optimal_threshold import test_presence_threshold
 from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
 from .end_timing import end_timing
