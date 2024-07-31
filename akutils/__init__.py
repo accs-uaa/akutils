@@ -10,6 +10,7 @@
 # Import functions from modules
 from .connect_database_postgresql import connect_database_postgresql
 from .determine_optimal_threshold import determine_optimal_threshold
+from .determine_optimal_threshold import match_sensitivity_threshold
 from .determine_optimal_threshold import test_presence_threshold
 from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
