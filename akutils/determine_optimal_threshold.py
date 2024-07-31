@@ -108,7 +108,10 @@ def match_sensitivity_threshold(predict_probability, y_test, target_threshold):
         i = i + 1
 
     # Calculate a list of absolute value difference between sensitivity and specificity and find the optimal threshold
-    difference_list = [np.absolute(target_threshold - a) for a in zip(sensitivity_list)]
+    target_array = np.zeros(np.array(sensitivity_list).shape)
+    target_array = np.where(target_array == 0, target_threshold, 0)
+    target_list = list(target_array.flatten())
+    difference_list = [np.absolute(a - b) for a, b in zip(sensitivity_list, target_list)]
     value, threshold = min((value, threshold) for (threshold, value) in enumerate(difference_list))
     threshold = threshold / 1000
 
