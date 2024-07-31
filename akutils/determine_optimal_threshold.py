@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Determine Optimal Threshold
 # Author: Timm Nawrocki
-# Last Updated: 2024-07-26
+# Last Updated: 2024-07-31
 # Usage: Must be executed in an Anaconda Python 3.12+ distribution.
 # Description: "Determine Optimal Threshold" is a set of functions that test presence thresholds for converting probabilistic predictions to binary predictions to determine a threshold value that minimizes the absolute value difference between sensitivity and specificity.
 # ---------------------------------------------------------------------------
@@ -84,39 +84,10 @@ def determine_optimal_threshold(predict_probability, y_test):
     # Return the optimal threshold and the performance metrics of the optimal threshold
     return threshold, sensitivity, specificity, auc, accuracy
 
-def match_sensitivity_threshold(predict_probability, y_test, target_threshold):
-    """
-    Description: determines the threshold value that minimizes the absolute value difference between sensitivity and specificity to one decimal percentage.
-    Inputs: 'predict_probability' -- the predicted probability values
-            'y_test' -- the observed binary values
-    Returned Value: Returns the optimal threshold value and the sensitivity, specificity, auc, and accuracy of the optimal threshold value
-    Preconditions: requires existing probability predictions and binary responses of the same shape
-    """
-
-    # Import packages
-    import numpy as np
-
-    # Iterate through numbers between 0 and 1000 to output a list of sensitivity and specificity values per threshold number
-    i = 1
-    sensitivity_list = []
-    specificity_list = []
-    while i <= 1000:
-        threshold = i / 1000
-        sensitivity, specificity, auc, accuracy = test_presence_threshold(predict_probability, threshold, y_test)
-        sensitivity_list.append(sensitivity)
-        specificity_list.append(specificity)
-        i = i + 1
-
-    # Calculate a list of absolute value difference between sensitivity and specificity and find the optimal threshold
-    target_array = np.zeros(np.array(sensitivity_list).shape)
-    target_array = np.where(target_array == 0, target_threshold, 0)
-    target_list = list(target_array.flatten())
-    difference_list = [np.absolute(a - b) for a, b in zip(sensitivity_list, target_list)]
-    value, threshold = min((value, threshold) for (threshold, value) in enumerate(difference_list))
-    threshold = threshold / 1000
-
-    # Calculate the performance of the optimal threshold
-    sensitivity, specificity, auc, accuracy = test_presence_threshold(predict_probability, threshold, y_test)
-
-    # Return the optimal threshold and the performance metrics of the optimal threshold
-    return threshold, sensitivity, specificity, auc, accuracy
+def one_wrong_threshold(results, response, presence):
+    filter_data = results.loc[results[response[0]] == 1].sort_values(by=presence[0])
+    prob_list = list(filter_data[presence[0]])
+    first_value = prob_list.pop(0)
+    second_value = prob_list.pop(0)
+    threshold = (first_value + second_value) / 2
+    return threshold
