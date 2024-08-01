@@ -10,8 +10,8 @@
 # Import functions from modules
 from .connect_database_postgresql import connect_database_postgresql
 from .determine_optimal_threshold import determine_optimal_threshold
-from .determine_optimal_threshold import one_wrong_threshold
 from .determine_optimal_threshold import test_presence_threshold
+from .determine_optimal_threshold import x_wrong_threshold
 from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
 from .end_timing import end_timing

@@ -84,10 +84,10 @@ def determine_optimal_threshold(predict_probability, y_test):
     # Return the optimal threshold and the performance metrics of the optimal threshold
     return threshold, sensitivity, specificity, auc, accuracy
 
-def one_wrong_threshold(results, response, presence):
+def x_wrong_threshold(results, response, presence, x):
     filter_data = results.loc[results[response[0]] == 1].sort_values(by=presence[0])
     prob_list = list(filter_data[presence[0]])
-    first_value = prob_list.pop(0)
-    second_value = prob_list.pop(0)
+    first_value = prob_list[x-1]
+    second_value = prob_list[x]
     threshold = (first_value + second_value) / 2
     return threshold
