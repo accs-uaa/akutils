@@ -28,7 +28,7 @@ def lgbmclassifier_cv(num_leaves, max_depth, learning_rate, n_estimators,
     from sklearn.model_selection import cross_val_score
 
     # Define cross validation
-    cv_splits = StratifiedGroupKFold(n_splits=5)
+    cv_splits = StratifiedGroupKFold(n_splits=10, shuffle=True)
 
     # Define estimator
     estimator = LGBMClassifier(
@@ -86,7 +86,7 @@ def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
     from sklearn.model_selection import cross_val_score
 
     # Define cross validation
-    cv_splits = GroupKFold(n_splits=5)
+    cv_splits = GroupKFold(n_splits=10)
 
     # Define estimator
     estimator = LGBMRegressor(
@@ -171,7 +171,7 @@ def optimize_lgbmclassifier(data, targets, groups):
             'num_leaves': (5, 200),
             'max_depth': (3, 12),
             'learning_rate': (0.001, 0.2),
-            'n_estimators': (50, 100),
+            'n_estimators': (50, 1000),
             'min_split_gain': (0.001, 0.1),
             'min_child_weight': (0.001, 1),
             'min_child_samples': (1, 200),
@@ -183,7 +183,7 @@ def optimize_lgbmclassifier(data, targets, groups):
         random_state=314,
         verbose=2
     )
-    optimizer.maximize(init_points=3, n_iter=7)
+    optimizer.maximize(init_points=50, n_iter=100)
 
     return optimizer.max['params']
 
@@ -236,7 +236,7 @@ def optimize_lgbmregressor(data, targets, groups):
             'num_leaves': (5, 200),
             'max_depth': (3, 12),
             'learning_rate': (0.001, 0.2),
-            'n_estimators': (50, 100),
+            'n_estimators': (50, 1000),
             'min_split_gain': (0.001, 0.1),
             'min_child_weight': (0.001, 1),
             'min_child_samples': (1, 200),
@@ -248,6 +248,6 @@ def optimize_lgbmregressor(data, targets, groups):
         random_state=314,
         verbose=2
     )
-    optimizer.maximize(init_points=3, n_iter=7)
+    optimizer.maximize(init_points=50, n_iter=100)
 
     return optimizer.max['params']
