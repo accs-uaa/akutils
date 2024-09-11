@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Initialization for AKVEG package
 # Author: Timm Nawrocki
-# Last Updated: 2024-07-31
+# Last Updated: 2024-09-10
 # Usage: Individual functions have varying requirements.
 # Description: The AKVEG package contains helper functions used across scripts.
 # ---------------------------------------------------------------------------
@@ -16,6 +16,10 @@ from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
 from .end_timing import end_timing
 from .geodatabase_to_dataframe import geodatabase_to_dataframe
+from .optimization_lgbm import lgbmclassifier_cv
+from .optimization_lgbm import lgbmregressor_cv
+from .optimization_lgbm import optimize_lgbmclassifier
+from .optimization_lgbm import optimize_lgbmregressor
 from .query_to_dataframe import query_to_dataframe
 from .raster_block_progress import raster_block_progress
 from .raster_bounds import raster_bounds
