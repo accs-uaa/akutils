@@ -47,7 +47,7 @@ def lgbmclassifier_cv(num_leaves, max_depth, learning_rate, n_estimators,
         colsample_bytree=colsample_bytree,
         reg_alpha=reg_alpha,
         reg_lambda=reg_lambda,
-        n_jobs=4,
+        n_jobs=2,
         importance_type='gain',
         verbosity=-1
     )
@@ -69,12 +69,11 @@ def lgbmclassifier_cv(num_leaves, max_depth, learning_rate, n_estimators,
 def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
                      min_split_gain, min_child_weight, min_child_samples,
                      subsample, colsample_bytree, reg_alpha, reg_lambda,
-                     data, targets, groups):
+                     data, targets):
     """
     Description: conducts cross validation of a LightGBM regressor with a particular set of hyperparameter values
     Inputs: 'data' -- the covariate data to conduct the model training and validation
             'targets' -- the response data to conduct the model training and validation
-            'groups' -- the group data for the cross validation method
             All other inputs are set by other functions
     Returned Value: Returns the cross validation score
     Preconditions: requires pre-processed X and y data
@@ -82,11 +81,11 @@ def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
 
     # Import packages
     from lightgbm import LGBMRegressor
-    from sklearn.model_selection import StratifiedGroupKFold
+    from sklearn.model_selection import GroupKFold
     from sklearn.model_selection import cross_val_score
 
     # Define cross validation
-    cv_splits = StratifiedGroupKFold(n_splits=5)
+    cv_splits = GroupKFold(n_splits=5)
 
     # Define estimator
     estimator = LGBMRegressor(
@@ -104,7 +103,7 @@ def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
         colsample_bytree=colsample_bytree,
         reg_alpha=reg_alpha,
         reg_lambda=reg_lambda,
-        n_jobs=4,
+        n_jobs=2,
         importance_type='gain',
         verbosity=-1
     )
@@ -115,8 +114,7 @@ def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
         data,
         targets,
         scoring='neg_mean_squared_error',
-        cv=cv_splits,
-        groups=groups
+        cv=cv_splits
     )
 
     # Return mean score across all cross validation partitions
@@ -189,12 +187,11 @@ def optimize_lgbmclassifier(data, targets, groups):
 
 
 # Define a function to optimize hyperparameters for a LightGBM regressor
-def optimize_lgbmregressor(data, targets, groups):
+def optimize_lgbmregressor(data, targets):
     """
     Description: applies Bayesian optimization to the hyperparameters of a LightGBM regressor
     Inputs: 'data' -- the covariate data to conduct the model training and validation
             'targets' -- the response data to conduct the model training and validation
-            'groups' -- the group data for the cross validation method
     Returned Value: Returns the hyperparameters from the iteration with the best cross validation performance
     Preconditions: requires pre-processed X and y data
     """
@@ -226,8 +223,7 @@ def optimize_lgbmregressor(data, targets, groups):
             reg_alpha=reg_alpha,
             reg_lambda=reg_lambda,
             data=data,
-            targets=targets,
-            groups=groups
+            targets=targets
         )
 
     optimizer = BayesianOptimization(
