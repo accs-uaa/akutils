@@ -171,7 +171,7 @@ def optimize_lgbmclassifier(data, targets, groups):
             'num_leaves': (5, 200),
             'max_depth': (3, 12),
             'learning_rate': (0.001, 0.2),
-            'n_estimators': (50, 1000),
+            'n_estimators': (50, 100),
             'min_split_gain': (0.001, 0.1),
             'min_child_weight': (0.001, 1),
             'min_child_samples': (1, 200),
@@ -183,7 +183,7 @@ def optimize_lgbmclassifier(data, targets, groups):
         random_state=314,
         verbose=2
     )
-    optimizer.maximize(init_points=30, n_iter=70)
+    optimizer.maximize(init_points=3, n_iter=7)
 
     return optimizer.max['params']
 
@@ -236,7 +236,7 @@ def optimize_lgbmregressor(data, targets, groups):
             'num_leaves': (5, 200),
             'max_depth': (3, 12),
             'learning_rate': (0.001, 0.2),
-            'n_estimators': (50, 1000),
+            'n_estimators': (50, 100),
             'min_split_gain': (0.001, 0.1),
             'min_child_weight': (0.001, 1),
             'min_child_samples': (1, 200),
@@ -248,6 +248,6 @@ def optimize_lgbmregressor(data, targets, groups):
         random_state=314,
         verbose=2
     )
-    optimizer.maximize(init_points=30, n_iter=70)
+    optimizer.maximize(init_points=3, n_iter=7)
 
     return optimizer.max['params']
