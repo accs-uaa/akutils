@@ -2,12 +2,14 @@
 # ---------------------------------------------------------------------------
 # Initialization for AKVEG package
 # Author: Timm Nawrocki
-# Last Updated: 2024-09-10
+# Last Updated: 2024-09-19
 # Usage: Individual functions have varying requirements.
 # Description: The AKVEG package contains helper functions used across scripts.
 # ---------------------------------------------------------------------------
 
 # Import functions from modules
+from .compute_spectral_metrics import impute_band_data
+from .compute_spectral_metrics import normalized_index
 from .connect_database_postgresql import connect_database_postgresql
 from .determine_optimal_threshold import determine_optimal_threshold
 from .determine_optimal_threshold import test_presence_threshold
