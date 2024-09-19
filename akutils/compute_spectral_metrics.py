@@ -21,7 +21,8 @@ def normalized_index(band_1, band_2, spectral_data):
     # Calculate metric
     normalized_metric = ((spectral_data[band_1] - spectral_data[band_2])
                          / (spectral_data[band_1] + spectral_data[band_2] + 0.001))
-    normalized_int = int((normalized_metric * 10000) + 0.5)
+    normalized_rescaled = (normalized_metric * 10000) + 0.5
+    normalized_int = normalized_rescaled.astype('int32')
 
     # Return output series
     return normalized_int
