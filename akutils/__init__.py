@@ -8,6 +8,7 @@
 # ---------------------------------------------------------------------------
 
 # Import functions from modules
+from .compute_spectral_metrics import foliar_cover_predictors
 from .compute_spectral_metrics import impute_band_data
 from .compute_spectral_metrics import normalized_index
 from .connect_database_postgresql import connect_database_postgresql
