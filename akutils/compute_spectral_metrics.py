@@ -45,7 +45,7 @@ def impute_band_data(band_1, band_2, band_data):
     import numpy as np
 
     # Calculate metric
-    imputed_band = np.where(band_data[band_1] == np.nan,
+    imputed_band = np.where(band_data[band_1] == -32768,
                             band_data[band_2],
                             band_data[band_1])
 
