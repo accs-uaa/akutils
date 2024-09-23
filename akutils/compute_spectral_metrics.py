@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Compute spectral metrics
 # Author: Timm Nawrocki, Alaska Center for Conservation Science
-# Last Updated: 2024-09-19
+# Last Updated: 2024-09-22
 # Usage: Python 3.12+
 # Description: "Compute spectral metrics" contains a function to compute standard spectral metrics from user-specified bands of remotely sensed imagery.
 # ---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ def impute_band_data(band_1, band_2, band_data):
     import numpy as np
 
     # Calculate metric
-    imputed_band = np.where(band_data[band_1] == -32768,
+    imputed_band = np.where((band_data[band_1] == -32768) | (band_data[band_1] == np.nan),
                             band_data[band_2],
                             band_data[band_1])
 
