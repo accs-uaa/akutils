@@ -25,9 +25,10 @@ def normalized_index(band_1, band_2, spectral_data):
     normalized_metric = ((spectral_data[band_1] - spectral_data[band_2])
                          / (spectral_data[band_1] + spectral_data[band_2] + 0.001))
     normalized_rescaled = (normalized_metric * 10000) + 0.5
+    normalized_int = normalized_rescaled.astype('int32')
 
     # Return output series
-    return normalized_rescaled
+    return normalized_int
 
 
 # Define a function to impute missing spectral or SAR data
@@ -177,9 +178,10 @@ def foliar_cover_predictors(covariate_data, predictors):
     covariate_data['s2_5_ndvi'] = normalized_index('s2_5_nir', 's2_5_red', covariate_data)
     covariate_data['s2_5_ndwi'] = normalized_index('s2_5_green', 's2_5_nir', covariate_data)
 
-    # Re-order covariates
+    # Fill missing data
     covariate_data[predictors] = covariate_data[predictors].interpolate()
     for name, values in covariate_data[predictors].items():
         covariate_data[name] = covariate_data[name].fillna(np.mean(values))
+    covariate_data = covariate_data.astype('int32')
 
     return covariate_data
