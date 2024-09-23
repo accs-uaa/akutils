@@ -18,11 +18,14 @@ def normalized_index(band_1, band_2, spectral_data):
     Preconditions: requires a dataframe containing labeled bands with values
     """
 
+    # Import packages
+    import numpy as np
+
     # Calculate metric
     normalized_metric = ((spectral_data[band_1] - spectral_data[band_2])
                          / (spectral_data[band_1] + spectral_data[band_2] + 0.001))
     normalized_rescaled = (normalized_metric * 10000) + 0.5
-    normalized_int = normalized_rescaled.astype('int32')
+    normalized_int = np.where(normalized_rescaled != np.nan, int(normalized_rescaled), np.nan)
 
     # Return output series
     return normalized_int
