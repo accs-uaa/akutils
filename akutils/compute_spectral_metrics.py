@@ -65,17 +65,17 @@ def foliar_cover_predictors(covariate_data, predictors):
     import numpy as np
 
     # Impute missing S1 data
-    covariate_data['s1_1_vva'] = impute_band_data('s1_1_vva', 's1_1_vva', covariate_data)
+    covariate_data['s1_1_vva'] = impute_band_data('s1_1_vva', 's1_1_vvd', covariate_data)
     covariate_data['s1_1_vvd'] = impute_band_data('s1_1_vvd', 's1_1_vva', covariate_data)
     covariate_data['s1_1_vha'] = impute_band_data('s1_1_vha', 's1_1_vhd', covariate_data)
     covariate_data['s1_1_vhd'] = impute_band_data('s1_1_vhd', 's1_1_vha', covariate_data)
 
-    covariate_data['s1_2_vva'] = impute_band_data('s1_2_vva', 's1_2_vva', covariate_data)
+    covariate_data['s1_2_vva'] = impute_band_data('s1_2_vva', 's1_2_vvd', covariate_data)
     covariate_data['s1_2_vvd'] = impute_band_data('s1_2_vvd', 's1_2_vva', covariate_data)
     covariate_data['s1_2_vha'] = impute_band_data('s1_2_vha', 's1_2_vhd', covariate_data)
     covariate_data['s1_2_vhd'] = impute_band_data('s1_2_vhd', 's1_2_vha', covariate_data)
 
-    covariate_data['s1_3_vva'] = impute_band_data('s1_3_vva', 's1_3_vva', covariate_data)
+    covariate_data['s1_3_vva'] = impute_band_data('s1_3_vva', 's1_3_vvd', covariate_data)
     covariate_data['s1_3_vvd'] = impute_band_data('s1_3_vvd', 's1_3_vva', covariate_data)
     covariate_data['s1_3_vha'] = impute_band_data('s1_3_vha', 's1_3_vhd', covariate_data)
     covariate_data['s1_3_vhd'] = impute_band_data('s1_3_vhd', 's1_3_vha', covariate_data)
