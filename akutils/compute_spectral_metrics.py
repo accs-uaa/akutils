@@ -184,6 +184,6 @@ def foliar_cover_predictors(covariate_data, predictors):
     covariate_data[predictors] = covariate_data[predictors].interpolate()
     for name, values in covariate_data[predictors].items():
         covariate_data[name] = covariate_data[name].fillna(-32768)
-    covariate_data = covariate_data.astype('int32')
+    covariate_data[predictors] = covariate_data[predictors].astype('int32')
 
     return covariate_data
