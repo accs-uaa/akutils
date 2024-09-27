@@ -124,12 +124,14 @@ def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
 
 
 # Define a function to optimize hyperparameters for a LightGBM classifier
-def optimize_lgbmclassifier(data, targets, groups):
+def optimize_lgbmclassifier(data, targets, groups, init_points, n_iter):
     """
     Description: applies Bayesian optimization to the hyperparameters of a LightGBM classifier
     Inputs: 'data' -- the covariate data to conduct the model training and validation
             'targets' -- the response data to conduct the model training and validation
             'groups' -- the group data for the cross validation method
+            'init_points' -- the number of random search iterations to perform initially
+            'n_iter' -- the number of Bayesian search iterations to perform
     Returned Value: Returns the hyperparameters from the iteration with the best cross validation performance
     Preconditions: requires pre-processed X and y data
     """
@@ -183,18 +185,20 @@ def optimize_lgbmclassifier(data, targets, groups):
         random_state=314,
         verbose=2
     )
-    optimizer.maximize(init_points=50, n_iter=100)
+    optimizer.maximize(init_points=init_points, n_iter=n_iter)
 
     return optimizer.max['params']
 
 
 # Define a function to optimize hyperparameters for a LightGBM regressor
-def optimize_lgbmregressor(data, targets, groups):
+def optimize_lgbmregressor(data, targets, groups, init_points, n_iter):
     """
     Description: applies Bayesian optimization to the hyperparameters of a LightGBM regressor
     Inputs: 'data' -- the covariate data to conduct the model training and validation
             'targets' -- the response data to conduct the model training and validation
             'groups' -- the group data for the cross validation method
+            'init_points' -- the number of random search iterations to perform initially
+            'n_iter' -- the number of Bayesian search iterations to perform
     Returned Value: Returns the hyperparameters from the iteration with the best cross validation performance
     Preconditions: requires pre-processed X and y data
     """
@@ -248,6 +252,6 @@ def optimize_lgbmregressor(data, targets, groups):
         random_state=314,
         verbose=2
     )
-    optimizer.maximize(init_points=50, n_iter=100)
+    optimizer.maximize(init_points=init_points, n_iter=n_iter)
 
     return optimizer.max['params']
