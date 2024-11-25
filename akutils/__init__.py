@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # Initialization for AKVEG package
 # Author: Timm Nawrocki
-# Last Updated: 2024-09-19
+# Last Updated: 2024-11-24
 # Usage: Individual functions have varying requirements.
 # Description: The AKVEG package contains helper functions used across scripts.
 # ---------------------------------------------------------------------------
