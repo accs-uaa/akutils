@@ -7,6 +7,7 @@ akutils/determineOptimalThreshold.py
 akutils/dictionary_response.py
 akutils/end_timing.py
 akutils/geodatabase_to_dataframe.py
+akutils/lgbm_to_gee.py
 akutils/query_to_dataframe.py
 akutils/raster_block_progress.py
 akutils/raster_bounds.py

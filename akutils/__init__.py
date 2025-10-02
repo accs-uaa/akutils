@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
 # Initialization for AKVEG package
-# Author: Timm Nawrocki
-# Last Updated: 2024-11-24
+# Author: Timm Nawrocki and Matt Macander
+# Last Updated: 2025-10-02
 # Usage: Individual functions have varying requirements.
 # Description: The AKVEG package contains helper functions used across scripts.
 # ---------------------------------------------------------------------------
@@ -19,6 +19,8 @@ from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
 from .end_timing import end_timing
 from .geodatabase_to_dataframe import geodatabase_to_dataframe
+from .lgbm_to_gee import lgbm_booster_to_tree_df
+from .lgbm_to_gee import treedf_to_string
 from .optimization_lgbm import lgbmclassifier_cv
 from .optimization_lgbm import lgbmregressor_cv
 from .optimization_lgbm import optimize_lgbmclassifier
