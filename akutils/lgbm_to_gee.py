@@ -1,438 +1,167 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Optimization for LightGBM
-# Author: Matt Macander
-# Last Updated: 2024-11-24
+# LightGBM to GEE
+# Author: Timm Nawrocki, Matt Macander
+# Last Updated: 2025-10-02
 # Usage: Must be executed in an Anaconda Python 3.12+ distribution.
-# Description: "Optimization for LightGBM" is a set of functions that perform Bayesian optimization on either a LightGBM classifier or regressor.
+# Description: "LightGBM to GEE" is a set of functions to convert LightGBM model boosters to GEE-compatible tree strings.
 # ---------------------------------------------------------------------------
 
-# Define a function to calculate the cross validated balanced accuracy score for the classifier
-def cross_val_bacc_classifier(estimator, data, all_variables, predictor_all, target_field, stratify_field, group_field):
-    # Import packages
-    import numpy as np
-    import pandas as pd
-    from sklearn.model_selection import StratifiedGroupKFold
-    from sklearn.metrics import balanced_accuracy_score
-    from akutils import determine_optimal_threshold
+# Import packages
+import numpy as np
+import pandas as pd
 
-    # Create inner cv splits
-    inner_cv_splits = StratifiedGroupKFold(n_splits=5)
-    inner_split = ['inner_split_n']
-
-    # Create an empty data frame to store the inner cross validation splits
-    inner_train = pd.DataFrame(columns=all_variables + inner_split)
-    inner_test = pd.DataFrame(columns=all_variables + inner_split)
-
-    # Create an empty data frame to store the inner test results
-    inner_results = pd.DataFrame(columns=all_variables + inner_split + ['y_abs', 'y_pres'])
-
-    # Create inner cross validation splits
-    count = 1
-    for train_index, test_index in inner_cv_splits.split(data,
-                                                         data[stratify_field[0]].astype('int32'),
-                                                         data[group_field[0]].astype('int32')):
-        # Split the data into train and test partitions
-        train = data.iloc[train_index]
-        test = data.iloc[test_index]
-        # Insert iteration to train
-        train = train.assign(inner_split_n=count)
-        # Insert iteration to test
-        test = test.assign(inner_split_n=count)
-        # Append to data frames
-        inner_train = pd.concat([inner_train if not inner_train.empty else None,
-                                 train],
-                                axis=0)
-        inner_test = pd.concat([inner_test if not inner_test.empty else None,
-                                test],
-                               axis=0)
-        # Increase counter
-        count += 1
-    inner_cv_length = count - 1
-
-    # Reset indices
-    inner_train = inner_train.reset_index()
-    inner_test = inner_test.reset_index()
-
-    # Iterate through inner cross validation splits
-    inner_cv_i = 1
-    while inner_cv_i <= inner_cv_length:
-        inner_train_iteration = inner_train[inner_train[inner_split[0]] == inner_cv_i].copy()
-        inner_test_iteration = inner_test[inner_test[inner_split[0]] == inner_cv_i].copy()
-
-        # Identify X and y inner train and test splits
-        X_class_inner = inner_train_iteration[predictor_all].astype(float).copy()
-        y_class_inner = inner_train_iteration[target_field[0]].astype('int32').copy()
-        X_test_inner = inner_test_iteration[predictor_all].astype(float).copy()
-
-        # Train regressor on the inner train data
-        estimator.fit(X_class_inner, y_class_inner)
-
-        # Predict inner test data
-        probability_inner = estimator.predict_proba(X_test_inner)
-
-        # Assign predicted values to inner test data frame
-        inner_test_iteration = inner_test_iteration.assign(y_abs=probability_inner[:, 0])
-        inner_test_iteration = inner_test_iteration.assign(y_pres=probability_inner[:, 1])
-
-        # Add the test results to output data frame
-        inner_results = pd.concat([inner_results if not inner_results.empty else None,
-                                   inner_test_iteration],
-                                  axis=0)
-
-        # Increase n value
-        inner_cv_i += 1
-
-    # Calculate the optimal threshold and performance of the presence-absence classification
-    threshold, sensitivity, specificity, auc, accuracy = determine_optimal_threshold(
-        inner_results['y_pres'],
-        inner_results[target_field[0]]
-    )
-
-    # Convert probability to presence-absence
-    presence_zeros = np.zeros(inner_results['y_pres'].shape)
-    presence_zeros[inner_results['y_pres'] >= threshold] = 1
-
-    # Assign binary prediction values to test data frame
-    inner_results = inner_results.assign(y_pred=presence_zeros)
-
-    # Calculate negative mean squared error
-    y_class_observed = inner_results[target_field[0]].astype('int32').copy()
-    y_class_predicted = inner_results['y_pred'].astype('int32').copy()
-    bacc = balanced_accuracy_score(y_class_observed, y_class_predicted)
-
-    return bacc
-
-
-# Define a function to calculate the cross validated negative mean squared error for the regressor
-def cross_val_nmse_regressor(estimator, data, all_variables, predictor_all, target_field, stratify_field, group_field):
-    # Import packages
-    import pandas as pd
-    from sklearn.model_selection import StratifiedGroupKFold
-    from sklearn.metrics import mean_squared_error
-
-    # Limit data to valid abundance observations
-    regress_inner = data[data[target_field[0]] >= 0].copy()
-
-    # Create inner cv splits
-    inner_cv_splits = StratifiedGroupKFold(n_splits=5)
-    inner_split = ['inner_split_n']
-
-    # Create an empty data frame to store the inner cross validation splits
-    inner_train = pd.DataFrame(columns=all_variables + inner_split)
-    inner_test = pd.DataFrame(columns=all_variables + inner_split)
-
-    # Create an empty data frame to store the inner test results
-    inner_results = pd.DataFrame(columns=all_variables + inner_split + ['y_pred'])
-
-    # Create inner cross validation splits
-    count = 1
-    for train_index, test_index in inner_cv_splits.split(regress_inner,
-                                                         regress_inner[stratify_field[0]].astype('int32'),
-                                                         regress_inner[group_field[0]].astype('int32')):
-        # Split the data into train and test partitions
-        train = regress_inner.iloc[train_index]
-        test = regress_inner.iloc[test_index]
-        # Insert iteration to train
-        train = train.assign(inner_split_n=count)
-        # Insert iteration to test
-        test = test.assign(inner_split_n=count)
-        # Append to data frames
-        inner_train = pd.concat([inner_train if not inner_train.empty else None,
-                                 train],
-                                axis=0)
-        inner_test = pd.concat([inner_test if not inner_test.empty else None,
-                                test],
-                               axis=0)
-        # Increase counter
-        count += 1
-    inner_cv_length = count - 1
-
-    # Reset indices
-    inner_train = inner_train.reset_index()
-    inner_test = inner_test.reset_index()
-
-    # Iterate through inner cross validation splits
-    inner_cv_i = 1
-    while inner_cv_i <= inner_cv_length:
-        inner_train_iteration = inner_train[inner_train[inner_split[0]] == inner_cv_i].copy()
-        inner_test_iteration = inner_test[inner_test[inner_split[0]] == inner_cv_i].copy()
-
-        # Identify X and y inner train and test splits
-        X_regress_inner = inner_train_iteration[predictor_all].astype(float).copy()
-        y_regress_inner = inner_train_iteration[target_field[0]].astype(float).copy()
-        X_test_inner = inner_test_iteration[predictor_all].astype(float).copy()
-
-        # Train regressor on the inner train data
-        estimator.fit(X_regress_inner, y_regress_inner)
-
-        # Predict inner test data
-        prediction_inner = estimator.predict(X_test_inner)
-
-        # Assign predicted values to inner test data frame
-        inner_test_iteration = inner_test_iteration.assign(y_pred=prediction_inner)
-
-        # Add the test results to output data frame
-        inner_results = pd.concat([inner_results if not inner_results.empty else None,
-                                   inner_test_iteration],
-                                  axis=0)
-
-        # Increase n value
-        inner_cv_i += 1
-
-    # Calculate negative mean squared error
-    y_regress_observed = inner_results[target_field[0]].astype(float).copy()
-    y_regress_predicted = inner_results['y_pred'].astype(float).copy()
-    nmse = -(mean_squared_error(y_regress_observed, y_regress_predicted))
-
-    return nmse
-
-
-# Define a function to conduct a cross validation iteration for a LightGBM classifier
-def lgbmclassifier_cv(num_leaves, max_depth, learning_rate, n_estimators,
-                      min_split_gain, min_child_weight, min_child_samples,
-                      subsample, colsample_bytree, reg_alpha, reg_lambda,
-                      data, all_variables, predictor_all, target_field, stratify_field, group_field):
+def treedf_to_string(df):
     """
-    Description: conducts cross validation of a LightGBM regressor with a particular set of hyperparameter values
-    Inputs: 'data' -- the covariate data to conduct the model training and validation
-            'targets' -- the response data to conduct the model training and validation
-            'groups' -- the group data for the cross validation method
-            All other inputs are set by other functions
-    Returned Value: Returns the cross validation score
-    Preconditions: requires pre-processed X and y data
+    Description: converts a parsed LightGBM tree dataframe to a GEE-compatible string.
+    Inputs: 'df' -- a dataframe representing a single tree from a LightGBM model
+    Returned Value: returns a string representation of the tree
+    Preconditions: requires a dataframe generated by lgbm_booster_to_tree_df
     """
+    # https://github.com/giswqs/geemap/blob/master/geemap/ml.py
+    # the table representation does not have lef vs right node structure
+    # so we need to add in right nodes in the correct location
+    # we do this by first calculating which nodes are right and then insert them at the correct index
 
-    # Import packages
-    from lightgbm import LGBMClassifier
-    from sklearn.model_selection import StratifiedGroupKFold
+    # get a dict of right node rows and assign key based on index where to insert
+    inserts = {}
+    for row in df.itertuples():
+        child_r = row.children_right
+        if child_r > row.Index:
+            ordered_row = np.array(row)
+            ordered_row[-1] = ">"
+            inserts[child_r] = ordered_row[1:]  # drop index value
+    # sort the inserts as to keep track of the additive indexing
+    inserts_sorted = {k: inserts[k] for k in sorted(inserts.keys())}
 
-    # Define cross validation
-    cv_splits = StratifiedGroupKFold(n_splits=5, shuffle=True)
+    # loop through the row inserts and add to table (array)
+    table_values = df.values
+    for i, k in enumerate(inserts_sorted.keys()):
+        table_values = np.insert(table_values, (k + i), inserts_sorted[k], axis=0)
 
-    # Define estimator
-    estimator = LGBMClassifier(
-        boosting_type='gbdt',
-        num_leaves=int(num_leaves),
-        max_depth=int(max_depth),
-        learning_rate=learning_rate,
-        n_estimators=int(n_estimators),
-        objective='binary',
-        class_weight='balanced',
-        min_split_gain=min_split_gain,
-        min_child_weight=min_child_weight,
-        min_child_samples=int(min_child_samples),
-        subsample=subsample,
-        subsample_freq=1,
-        colsample_bytree=colsample_bytree,
-        reg_alpha=reg_alpha,
-        reg_lambda=reg_lambda,
-        n_jobs=2,
-        importance_type='gain',
-        verbosity=-1
-    )
+    # make the ordered table array into a dataframe
+    # note: df is dtype "object", need to cast later on
+    ordered_df = pd.DataFrame(table_values, columns=df.columns)
 
-    # Define cross validation
-    bacc = cross_val_bacc_classifier(estimator,
-                                     data,
-                                     all_variables,
-                                     predictor_all,
-                                     target_field,
-                                     stratify_field,
-                                     group_field)
+    max_depth = np.max(ordered_df.node_depth.astype(int))
+    tree_str = f"1) root {df['n_samples'][0]} 9999 9999 ({df['criterion'].sum()})\n"
+    previous_depth = -1
+    cnts = []
+    # loop through the nodes and calculate the node number and values per node
+    for row in ordered_df.itertuples():
+        node_depth = int(row.node_depth)
+        left = int(row.children_left)
+        right = int(row.children_right)
+        if left != right:
+            if row.Index == 0:
+                cnt = 2
+            elif previous_depth > node_depth:
+                depths = ordered_df.node_depth.values[: row.Index]
+                idx = np.where(depths == node_depth)[0][-1]
+                # cnt = (cnts[row.Index-1] // 2) + 1
+                cnt = cnts[idx] + 1
+            elif previous_depth < node_depth:
+                cnt = cnts[row.Index - 1] * 2
+            elif previous_depth == node_depth:
+                cnt = cnts[row.Index - 1] + 1
 
-    return bacc
+            if node_depth == (max_depth - 1):
+                value = float(ordered_df.iloc[row.Index + 1].value)
+                samps = int(ordered_df.iloc[row.Index + 1].n_samples)
+                criterion = float(ordered_df.iloc[row.Index + 1].criterion)
+                tail = " *\n"
+            else:
+                if (
+                        (bool(ordered_df.loc[ordered_df.node_id == left].iloc[0].is_leaf))
+                        and (
+                        bool(
+                            int(row.Index)
+                            < int(ordered_df.loc[ordered_df.node_id == left].index[0])
+                        )
+                )
+                        and (str(row.sign) == "<=")
+                ):
+                    rowx = ordered_df.loc[ordered_df.node_id == left].iloc[0]
+                    tail = " *\n"
+                    value = float(rowx.value)
+                    samps = int(rowx.n_samples)
+                    criterion = float(rowx.criterion)
 
+                elif (
+                        (bool(ordered_df.loc[ordered_df.node_id == right].iloc[0].is_leaf))
+                        and (
+                        bool(
+                            int(row.Index)
+                            < int(ordered_df.loc[ordered_df.node_id == right].index[0])
+                        )
+                )
+                        and (str(row.sign) == ">")
+                ):
+                    rowx = ordered_df.loc[ordered_df.node_id == right].iloc[0]
+                    tail = " *\n"
+                    value = float(rowx.value)
+                    samps = int(rowx.n_samples)
+                    criterion = float(rowx.criterion)
 
-# Define a function to conduct a cross validation iteration for a LightGBM regressor
-def lgbmregressor_cv(num_leaves, max_depth, learning_rate, n_estimators,
-                     min_split_gain, min_child_weight, min_child_samples,
-                     subsample, colsample_bytree, reg_alpha, reg_lambda,
-                     data, all_variables, predictor_all, target_field, stratify_field, group_field):
+                else:
+                    value = float(row.value)
+                    samps = int(row.n_samples)
+                    criterion = float(row.criterion)
+                    tail = "\n"
+
+            # extract out the information needed in each line
+            spacing = (node_depth + 1) * "  "  # for pretty printing
+            fname = str(row.feature_name)  # name of the feature (i.e. band name)
+            tresh = float(row.threshold)  # threshold
+            sign = str(row.sign)
+
+            tree_str += f"{spacing}{cnt}) {fname} {sign} {tresh:.6f} {samps} {criterion:.4f} {value:.6f}{tail}"
+            previous_depth = node_depth
+        cnts.append(cnt)
+
+    return tree_str
+
+def lgbm_booster_to_tree_df(booster):
     """
-    Description: conducts cross validation of a LightGBM regressor with a particular set of hyperparameter values
-    Inputs: 'data' -- the covariate data to conduct the model training and validation
-            'targets' -- the response data to conduct the model training and validation
-            'groups' -- the group data for the cross validation method
-            All other inputs are set by other functions
-    Returned Value: Returns the cross validation score
-    Preconditions: requires pre-processed X and y data
+    Description: converts a LightGBM booster object to a parsed dataframe.
+    Inputs: 'booster' -- a LightGBM booster object
+    Returned Value: returns a dataframe of all trees in the booster
+    Preconditions: requires a trained LightGBM model
     """
+    # Convert classifier or regressor (saved using .booster_.save_model) to parsed data frame
+    classifier_df = booster.trees_to_dataframe()
 
-    # Import packages
-    from lightgbm import LGBMRegressor
+    classifier_df["row_id"] = classifier_df.index
 
-    # Define estimator
-    estimator = LGBMRegressor(
-        boosting_type='gbdt',
-        num_leaves=int(num_leaves),
-        max_depth=int(max_depth),
-        learning_rate=learning_rate,
-        n_estimators=int(n_estimators),
-        objective='regression',
-        min_split_gain=min_split_gain,
-        min_child_weight=min_child_weight,
-        min_child_samples=int(min_child_samples),
-        subsample=subsample,
-        subsample_freq=1,
-        colsample_bytree=colsample_bytree,
-        reg_alpha=reg_alpha,
-        reg_lambda=reg_lambda,
-        n_jobs=2,
-        importance_type='gain',
-        verbosity=-1
-    )
+    classifier_df["node_id"] = classifier_df.groupby("tree_index")["row_id"].rank(method="first", ascending=True)
+    classifier_df["node_id"] = classifier_df["node_id"] - 1
+    classifier_df["node_id"] = classifier_df["node_id"].astype('Int64')
 
-    # Define cross validation
-    nmse = cross_val_nmse_regressor(estimator,
-                                    data,
-                                    all_variables,
-                                    predictor_all,
-                                    target_field,
-                                    stratify_field,
-                                    group_field)
+    classifier_nodes = classifier_df[['tree_index','node_index','node_id']]
 
-    # Return mean score across all cross validation partitions
-    return nmse
+    classifier_df = classifier_df.rename(columns={
+                                         "split_gain":"criterion",
+                                         "count":"n_samples",
+                                         "split_feature":"feature_name"})
 
+    classifier_df["is_leaf"] = pd.isnull(classifier_df["threshold"])
+    classifier_df["sign"] = "<="
+    classifier_df["node_depth"] = classifier_df["node_depth"] - 1
 
-# Define a function to optimize hyperparameters for a LightGBM classifier
-def optimize_lgbmclassifier(init_points, n_iter, data, all_variables, predictor_all, target_field, stratify_field, group_field):
-    """
-    Description: applies Bayesian optimization to the hyperparameters of a LightGBM classifier
-    Inputs: 'data' -- the covariate data to conduct the model training and validation
-            'targets' -- the response data to conduct the model training and validation
-            'groups' -- the group data for the cross validation method
-            'init_points' -- the number of random search iterations to perform initially
-            'n_iter' -- the number of Bayesian search iterations to perform
-    Returned Value: Returns the hyperparameters from the iteration with the best cross validation performance
-    Preconditions: requires pre-processed X and y data
-    """
+    classifier_df = pd.merge(classifier_df, classifier_nodes, how='left', left_on=['tree_index','left_child'], right_on=['tree_index','node_index'])
+    classifier_df = classifier_df.rename(columns={"node_id_x":"node_id",
+                                                   "node_id_y":"children_left"})
+    # classifier_df = classifier_df.fillna(-1)
+    classifier_df = pd.merge(classifier_df, classifier_nodes, how='left', left_on=['tree_index','right_child'], right_on=['tree_index','node_index'])
+    classifier_df = classifier_df.rename(columns={"node_id_x":"node_id",
+                                                   "node_id_y":"children_right"})
 
-    # Import packages
-    from bayes_opt import BayesianOptimization
+    classifier_df_out = classifier_df
+    classifier_df_out = classifier_df[["tree_index",
+                                       "node_id","node_depth","is_leaf","children_left","children_right","value","criterion",
+                                      "n_samples","threshold","feature_name","sign"]]
+    # classifier_df_out.dtypes
+    # classifier_nodes
+    classifier_df_out = classifier_df_out.fillna(value={'threshold': -2, 'children_right': -1, 'children_left': -1, 'criterion': 0})
 
-    # Define a function to return hyperparameters from an optimization iteration
-    def lgbmclassifier_params(num_leaves, max_depth, learning_rate, n_estimators,
-                              min_split_gain, min_child_weight, min_child_samples,
-                              subsample, colsample_bytree, reg_alpha, reg_lambda):
-        '''
-        Description: returns the hyperparameter values from a cross validation set
-        Inputs: All inputs are set by other functions
-        Returned Value: Returns a set of hyperparameters
-        Preconditions: this function wraps lgbmclassifier_cv
-        '''
-
-        return lgbmclassifier_cv(
-            num_leaves=num_leaves,
-            max_depth=max_depth,
-            learning_rate=learning_rate,
-            n_estimators=n_estimators,
-            min_split_gain=min_split_gain,
-            min_child_weight=min_child_weight,
-            min_child_samples=min_child_samples,
-            subsample=subsample,
-            colsample_bytree=colsample_bytree,
-            reg_alpha=reg_alpha,
-            reg_lambda=reg_lambda,
-            data=data,
-            all_variables=all_variables,
-            predictor_all=predictor_all,
-            target_field=target_field,
-            stratify_field=stratify_field,
-            group_field=group_field
-        )
-
-    optimizer = BayesianOptimization(
-        f=lgbmclassifier_params,
-        pbounds={
-            'num_leaves': (5, 200),
-            'max_depth': (3, 12),
-            'learning_rate': (0.001, 0.2),
-            'n_estimators': (50, 1000),
-            'min_split_gain': (0.001, 0.1),
-            'min_child_weight': (0.001, 1),
-            'min_child_samples': (1, 200),
-            'subsample': (0.3, 0.9),
-            'colsample_bytree': (0.3, 0.9),
-            'reg_alpha': (0, 5),
-            'reg_lambda': (0, 5)
-        },
-        random_state=314,
-        verbose=2
-    )
-    optimizer.maximize(init_points=init_points, n_iter=n_iter)
-
-    return optimizer.max['params']
-
-
-# Define a function to optimize hyperparameters for a LightGBM regressor
-def optimize_lgbmregressor(init_points, n_iter, data, all_variables, predictor_all, target_field, stratify_field,
-                           group_field):
-    """
-    Description: applies Bayesian optimization to the hyperparameters of a LightGBM regressor
-    Inputs: 'data' -- the covariate data to conduct the model training and validation
-            'targets' -- the response data to conduct the model training and validation
-            'groups' -- the group data for the cross validation method
-            'init_points' -- the number of random search iterations to perform initially
-            'n_iter' -- the number of Bayesian search iterations to perform
-    Returned Value: Returns the hyperparameters from the iteration with the best cross validation performance
-    Preconditions: requires pre-processed X and y data
-    """
-
-    # Import packages
-    from bayes_opt import BayesianOptimization
-
-    # Define a function to return hyperparameters from an optimization iteration
-    def lgbmregressor_params(num_leaves, max_depth, learning_rate, n_estimators,
-                             min_split_gain, min_child_weight, min_child_samples,
-                             subsample, colsample_bytree, reg_alpha, reg_lambda):
-        '''
-        Description: returns the hyperparameter values from a cross validation set
-        Inputs: All inputs are set by other functions
-        Returned Value: Returns a set of hyperparameters
-        Preconditions: this function wraps lgbmregressor_cv
-        '''
-
-        return lgbmregressor_cv(
-            num_leaves=num_leaves,
-            max_depth=max_depth,
-            learning_rate=learning_rate,
-            n_estimators=n_estimators,
-            min_split_gain=min_split_gain,
-            min_child_weight=min_child_weight,
-            min_child_samples=min_child_samples,
-            subsample=subsample,
-            colsample_bytree=colsample_bytree,
-            reg_alpha=reg_alpha,
-            reg_lambda=reg_lambda,
-            data=data,
-            all_variables=all_variables,
-            predictor_all=predictor_all,
-            target_field=target_field,
-            stratify_field=stratify_field,
-            group_field=group_field
-        )
-
-    optimizer = BayesianOptimization(
-        f=lgbmregressor_params,
-        pbounds={
-            'num_leaves': (5, 200),
-            'max_depth': (3, 12),
-            'learning_rate': (0.001, 0.2),
-            'n_estimators': (50, 1000),
-            'min_split_gain': (0.001, 0.1),
-            'min_child_weight': (0.001, 1),
-            'min_child_samples': (1, 200),
-            'subsample': (0.3, 0.9),
-            'colsample_bytree': (0.3, 0.9),
-            'reg_alpha': (0, 5),
-            'reg_lambda': (0, 5)
-        },
-        random_state=314,
-        verbose=2
-    )
-    optimizer.maximize(init_points=init_points, n_iter=n_iter)
-
-    return optimizer.max['params']
-
+    return classifier_df_out
