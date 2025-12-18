@@ -8,12 +8,12 @@
 # ---------------------------------------------------------------------------
 
 # Define a function to download files from a csv
-def download_from_csv(input_table, url_column, directory):
+def download_from_csv(input_table, url_column, download_folder):
     """
     Description: downloads set of files specified in a particular column of a csv table.
     Inputs: input_table -- csv table containing rows for download items.
             url_column -- title for column containing download urls.
-            destination -- folder to store download results.
+            download_folder -- folder to store download results.
     Returned Value: Function returns status messages only. Downloaded data are stored on drive.
     Preconditions: input csv table must be generated from web application tools or manually.
     """
@@ -23,45 +23,66 @@ def download_from_csv(input_table, url_column, directory):
     import os
     import pandas as pd
     import time
-    import urllib.request
+    import requests
 
     # Import a csv file with download urls
     download_items = pd.read_csv(input_table)
 
     # Initialize download count
     n = len(download_items[url_column])
-    print(f'Beginning download of {n} files...')
-    count = 1
 
     # Loop through urls in the downloadURL column and download
+    count = 1
     for url in download_items[url_column]:
-        target = os.path.join(directory, os.path.split(url)[1])
+        # Define destination file path
+        destination_path = os.path.join(download_folder, os.path.split(url)[1])
+
         # Download file if it does not already exist on local disk
-        if os.path.exists(target) == 0:
+        if os.path.exists(destination_path) == 0:
+            print(f'Downloading of {count} of {n} files...')
             try:
-                print(f'\tDownloading {count} of {n} files...')
                 iteration_start = time.time()
-                # Download data
-                filedata = urllib.request.urlopen(url)
-                datatowrite = filedata.read()
-                with open(target, 'wb') as file:
-                    file.write(datatowrite)
-                    file.close()
+                # Determine download size
+                response = requests.get(url, stream=True)
+                total_bytes = int(response.headers.get('content-length', 0))
+                total_mb = round((total_bytes / (1024 * 1024)), 0)
+
+                # Print download size
+                if total_bytes == 0:
+                    print('\tCould not determine file size.')
+                elif total_mb == 0:
+                    print(f'\tDownload size is {total_bytes} bytes.')
+                else:
+                    print(f'\tDownload size is {total_mb} mb.')
+
+                # Download file in chunks
+                with open(destination_path, "wb") as file:
+                    progress_percentage = 0
+                    cumulative_bytes = 0
+                    for chunk in response.iter_content(chunk_size=4096):
+                        cumulative_bytes += len(chunk)
+                        file.write(chunk)
+
+                        # Calculate progress percentage
+                        if total_bytes > 0:
+                            cumulative_percentage = round(((cumulative_bytes / total_bytes) * 100), 0)
+                            if cumulative_percentage > progress_percentage:
+                                print(f'\t{cumulative_percentage}%')
+                            progress_percentage = round(((cumulative_bytes / total_bytes) * 100), 0)
+
                 # End timing
                 iteration_end = time.time()
                 iteration_elapsed = int(iteration_end - iteration_start)
                 iteration_success_time = datetime.datetime.now()
                 # Report success
-                print(f'\tCompleted at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
-                print('\t----------')
+                print(
+                    f'Completed at {iteration_success_time.strftime("%Y-%m-%d %H:%M")} (Elapsed time: {datetime.timedelta(seconds=iteration_elapsed)})')
+                print('----------')
             except:
-                print(f'\tFile {count} of {n} not available for download. Check url.')
-                print('\t----------')
+                print(f'File {count} of {n} not available for download. Check url.')
+                print('----------')
         else:
             print(f'\tFile {count} of {n} already exists...')
             print('\t----------')
         # Increase counter
         count += 1
-
-    # Report end status
-    print('Finished downloading tiles.')
