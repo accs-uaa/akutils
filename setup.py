@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='akutils',
-    version='0.8.0',
-    author='Timm Nawrocki and Matt Macander',
+    version='1.0.0',
+    author='Timm W. Nawrocki and Matthew J. Macander',
     author_email='twnawrocki@alaska.edu',
-    description='Functions and utilities for Alaska geospatial data development.',
+    description='Functions and utilities for Alaska Vegetation (AKVEG) Map and Database.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/accs-uaa/akutils',

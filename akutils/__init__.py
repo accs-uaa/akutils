@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
-# Initialization for AKVEG package
+# Initialization for AKUTILS package
 # Author: Timm Nawrocki and Matt Macander
-# Last Updated: 2025-10-02
+# Last Updated: 2025-12-18
 # Usage: Individual functions have varying requirements.
-# Description: The AKVEG package contains helper functions used across scripts.
+# Description: The AKUTILS package contains helper functions used across scripts for the AKVEG Map project (including the AKVEG Database).
 # ---------------------------------------------------------------------------
 
 # Import functions from modules
@@ -17,6 +17,7 @@ from .determine_optimal_threshold import test_presence_threshold
 from .determine_optimal_threshold import x_wrong_threshold
 from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
+from .download_from_csv import download_from_csv
 from .end_timing import end_timing
 from .geodatabase_to_dataframe import geodatabase_to_dataframe
 from .lgbm_to_gee import lgbm_booster_to_tree_df
