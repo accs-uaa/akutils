@@ -17,7 +17,6 @@ from .determine_optimal_threshold import test_presence_threshold
 from .determine_optimal_threshold import x_wrong_threshold
 from .dictionary_response import get_attribute_code_block
 from .dictionary_response import get_response
-from .download_from_csv import download_from_csv
 from .end_timing import end_timing
 from .geodatabase_to_dataframe import geodatabase_to_dataframe
 from .lgbm_to_gee import lgbm_booster_to_tree_df
