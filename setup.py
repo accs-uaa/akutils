@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='akutils',
-    version='1.2.4',
+    version='1.3.0',
     author='Timm W. Nawrocki and Matthew J. Macander',
     author_email='twnawrocki@alaska.edu',
     description='Functions and utilities for Alaska Vegetation (AKVEG) Map and Database.',

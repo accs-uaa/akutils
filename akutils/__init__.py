@@ -2,12 +2,13 @@
 # ---------------------------------------------------------------------------
 # Initialization for AKUTILS package
 # Author: Timm Nawrocki, Matt Macander
-# Last Updated: 2026-04-28
+# Last Updated: 2026-06-24
 # Usage: Individual functions have varying requirements.
 # Description: The AKUTILS package contains helper functions used across scripts for the AKVEG Map project (including the AKVEG Database).
 # ---------------------------------------------------------------------------
 
 # Import functions from modules
+from .categorical_postprocessing import apply_smoothing_filter
 from .connect_database_postgresql import connect_database_postgresql
 from .determine_optimal_threshold import determine_optimal_threshold
 from .determine_optimal_threshold import test_presence_threshold
@@ -27,5 +28,6 @@ from .optimization_lgbm import optimize_lgbmregressor
 from .parse_treestring_text import parse_treestring_text
 from .query_to_dataframe import query_to_dataframe
 from .raster_block_progress import raster_block_progress
-from .raster_bounds import raster_bounds
+from .raster_read import raster_bounds
+from .raster_read import read_raster_block
 from .rf_to_gee import rf_to_gee_strings
