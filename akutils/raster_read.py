@@ -17,12 +17,11 @@ def raster_bounds(area_file):
     return area_bounds
 
 # Define a function to read raster block
-def read_raster_block(input_raster, window_bounds, pad_value=0):
+def read_raster_block(input_raster, window_bounds):
     """
     Description: reads a raster block using a pre-defined window with rasterio
     Inputs: 'input_raster' -- a raster object opened with rasterio
             'window_bounds' -- a pre-calculated window to read the raster data
-            'pad_value' -- the value to extend the raster data with in case the window exceeds the raster extent
     Returned Value: returns raster data for the window
     Preconditions: requires rasterio
     """
@@ -38,8 +37,6 @@ def read_raster_block(input_raster, window_bounds, pad_value=0):
     output_block = input_raster.read(
         1,
         window=input_window,
-        boundless=True,
-        fill_value=pad_value,
         masked=False
     )
 
