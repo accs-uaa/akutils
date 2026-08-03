@@ -48,3 +48,29 @@ def apply_smoothing_filter(input_array, window_size=3, iterations=1, threshold=N
         filtered_array = np.where(replace_mask, mode_result.mode, filtered_array)
 
     return filtered_array
+
+def categorical_nibble(input_array, nodata_value):
+    """
+    Replaces nodata value with nearest adjacent valid categorical value. Works only for categorical data.
+
+    Parameters:
+    - input_array: 2D numpy array to be nibbled.
+    - nodata_value: Value used to pad the edges of the array.
+    """
+    # Import packages
+    from scipy.ndimage import distance_transform_edt
+
+    # Create a boolean mask of the valid data
+    valid_mask = (input_array != nodata_value)
+
+    # If the array is entirely nodata or has no nodata, return as is
+    if not valid_mask.any() or valid_mask.all():
+        return input_array.copy()
+
+    # Return indices of the nearest valid pixels
+    _, indices = distance_transform_edt(~valid_mask, return_indices=True)
+
+    # Map the nearest valid values to the entire array
+    nibbled_array = input_array[tuple(indices)]
+
+    return nibbled_array

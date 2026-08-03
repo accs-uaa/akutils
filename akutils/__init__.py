@@ -2,13 +2,14 @@
 # ---------------------------------------------------------------------------
 # Initialization for AKUTILS package
 # Author: Timm Nawrocki, Matt Macander
-# Last Updated: 2026-06-24
+# Last Updated: 2026-08-02
 # Usage: Individual functions have varying requirements.
 # Description: The AKUTILS package contains helper functions used across scripts for the AKVEG Map project (including the AKVEG Database).
 # ---------------------------------------------------------------------------
 
 # Import functions from modules
 from .categorical_postprocessing import apply_smoothing_filter
+from .categorical_postprocessing import categorical_nibble
 from .connect_database_postgresql import connect_database_postgresql
 from .determine_optimal_threshold import determine_optimal_threshold
 from .determine_optimal_threshold import test_presence_threshold
