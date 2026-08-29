@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------
 # Initialization for AKUTILS package
-# Author: Timm Nawrocki, Matt Macander
-# Last Updated: 2026-08-02
+# Author: Timm Nawrocki, Matt Macander, Dan Wexler
+# Last Updated: 2026-08-29
 # Usage: Individual functions have varying requirements.
 # Description: The AKUTILS package contains helper functions used across scripts for the AKVEG Map project (including the AKVEG Database).
 # ---------------------------------------------------------------------------
@@ -28,6 +28,8 @@ from .optimization_lgbm import optimize_lgbmclassifier
 from .optimization_lgbm import optimize_lgbmregressor
 from .parse_treestring_text import parse_treestring_text
 from .query_to_dataframe import query_to_dataframe
+from .segmentation import merge_spectral
+from .segmentation import merge_size
 from .raster_block_progress import raster_block_progress
 from .raster_read import raster_bounds
 from .raster_read import read_raster_block
