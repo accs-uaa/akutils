@@ -7,6 +7,8 @@ def merge_spectral(clusters, segmentation_image, threshold=0.005):
     - segmentation_image: The raw image used for segmentation, expecting blue, green, red, nir, and ndvi.
     - threshold: A decimal threshold of spectral similarity.
     """
+    # Import packages
+    import ee
 
     # Calculate spectral means of clusters over segmentation image
     raw_means = segmentation_image.addBands(clusters).reduceConnectedComponents(
@@ -36,6 +38,8 @@ def merge_size(clusters, threshold=5):
     - clusters: A GEE asset of clusters calculated through the GEE implementation of SNIC.
     - threshold: An integer threshold of the maximum pixel count to be removed.
     """
+    # Import packages
+    import ee
 
     # Count pixels in each segment
     size = clusters.connectedPixelCount(maxSize=100, eightConnected=True)
